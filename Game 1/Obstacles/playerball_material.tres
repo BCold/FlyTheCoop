@@ -1,0 +1,4 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://richeio4cari"]
+
+[resource]
+albedo_color = Color(0.6, 0.15, 0.15, 1)

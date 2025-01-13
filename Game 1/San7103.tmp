@@ -1,0 +1,88 @@
+[gd_scene load_steps=16 format=3 uid="uid://caqj62rnm507t"]
+
+[ext_resource type="Script" path="res://Sandbox.gd" id="1_sv3fj"]
+[ext_resource type="PackedScene" uid="uid://b8a8jmohibgp4" path="res://playerBall.tscn" id="2_8xf7v"]
+[ext_resource type="Texture2D" uid="uid://dxudidh450dqv" path="res://Assets/bg/Blue.png" id="2_attmj"]
+[ext_resource type="AudioStream" uid="uid://db5asbdqdv8gj" path="res://Obstacles/Interstellar Fleet 1 [LOOP].ogg" id="3_63t3x"]
+[ext_resource type="Material" uid="uid://c8m38r5sujiyi" path="res://loopingShader.tres" id="3_p87ve"]
+[ext_resource type="PackedScene" uid="uid://cp7xsuv52dnca" path="res://score_ui.tscn" id="4_dgje3"]
+[ext_resource type="Script" path="res://background.gd" id="4_tpggu"]
+[ext_resource type="Script" path="res://score_ui.gd" id="5_idt1o"]
+[ext_resource type="PackedScene" uid="uid://1aesgx4470x2" path="res://Obstacles/obstacle_pair.tscn" id="5_qe105"]
+[ext_resource type="PackedScene" uid="uid://bi0w1bjf2gae2" path="res://start_ui.tscn" id="7_5bbfo"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0786i"]
+next_pass = ExtResource("3_p87ve")
+albedo_texture = ExtResource("2_attmj")
+uv1_scale = Vector3(50, 10, 1)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_oviwm"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_wvsoa"]
+sky_material = SubResource("ProceduralSkyMaterial_oviwm")
+
+[sub_resource type="Environment" id="Environment_l8e5b"]
+background_mode = 2
+sky = SubResource("Sky_wvsoa")
+ambient_light_source = 2
+ambient_light_color = Color(0.75, 0.75, 0.75, 1)
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_iiceq"]
+size = Vector3(25, 0.5, 4)
+
+[node name="Sandbox" type="Node3D"]
+script = ExtResource("1_sv3fj")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 5, -1)
+size = Vector3(50, 10, 0.1)
+material = SubResource("StandardMaterial3D_0786i")
+script = ExtResource("4_tpggu")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_l8e5b")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+projection = 1
+size = 6.0
+
+[node name="Killzone" type="Node3D" parent="." groups=["floor"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="Area3D" type="Area3D" parent="Killzone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Killzone/Area3D"]
+shape = SubResource("BoxShape3D_iiceq")
+
+[node name="Player" parent="." instance=ExtResource("2_8xf7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0)
+JUMP_VELOCITY = 8.0
+
+[node name="Obstacle_Spawner" type="Timer" parent="."]
+wait_time = 0.625
+autostart = true
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." groups=["musicPlayer"]]
+process_mode = 3
+stream = ExtResource("3_63t3x")
+volume_db = -10.0
+
+[node name="ObstaclePair" parent="." instance=ExtResource("5_qe105")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
+
+[node name="ScoreUI" parent="." instance=ExtResource("4_dgje3")]
+script = ExtResource("5_idt1o")
+
+[node name="StartUI" parent="." instance=ExtResource("7_5bbfo")]
+
+[connection signal="body_entered" from="Killzone/Area3D" to="." method="on_floor_hit"]
+[connection signal="died" from="Player" to="." method="_on_player_died"]
+[connection signal="died" from="Player" to="ObstaclePair" method="_on_player_died"]
+[connection signal="scored" from="Player" to="ScoreUI" method="update_score"]
+[connection signal="timeout" from="Obstacle_Spawner" to="." method="spawn_obstacle"]

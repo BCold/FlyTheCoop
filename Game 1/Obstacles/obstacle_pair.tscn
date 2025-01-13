@@ -1,0 +1,71 @@
+[gd_scene load_steps=8 format=3 uid="uid://1aesgx4470x2"]
+
+[ext_resource type="Script" path="res://Obstacles/obstacle_pair.gd" id="1_lgq4b"]
+[ext_resource type="Material" uid="uid://chkmnp5ht2yy4" path="res://Obstacles/obstacle_materialtres.tres" id="2_8cpo7"]
+[ext_resource type="AudioStream" uid="uid://qmon4mpjh6br" path="res://scored_sound.wav" id="3_biq4b"]
+[ext_resource type="FontFile" uid="uid://c11x2v31ft7ni" path="res://Assets/LilitaOne-Regular.ttf" id="3_j0sf8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4t5bx"]
+size = Vector3(1.01, 5.51, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f0wq0"]
+size = Vector3(1.01, 5.51, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nt8ju"]
+size = Vector3(1, 2.5, 1)
+
+[node name="ObstaclePair" type="Node3D" groups=["obstacles"]]
+script = ExtResource("1_lgq4b")
+speed = 5.0
+
+[node name="UpperObstacle" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, 0)
+use_collision = true
+size = Vector3(1, 5.5, 1)
+material = ExtResource("2_8cpo7")
+
+[node name="Killzone" type="Area3D" parent="UpperObstacle"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="UpperObstacle/Killzone"]
+visible = false
+shape = SubResource("BoxShape3D_4t5bx")
+
+[node name="LowerObstacle" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+use_collision = true
+size = Vector3(1, 5.5, 1)
+material = ExtResource("2_8cpo7")
+
+[node name="Killzone" type="Area3D" parent="LowerObstacle"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LowerObstacle/Killzone"]
+shape = SubResource("BoxShape3D_f0wq0")
+
+[node name="ScoreArea" type="Area3D" parent="." groups=["ScoreEvent"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ScoreArea"]
+shape = SubResource("BoxShape3D_nt8ju")
+
+[node name="Label3D" type="Label3D" parent="ScoreArea"]
+visible = false
+layers = 2
+text = "+1"
+font = ExtResource("3_j0sf8")
+font_size = 64
+outline_size = 24
+
+[node name="scoredAudio" type="AudioStreamPlayer3D" parent="ScoreArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3, 0)
+stream = ExtResource("3_biq4b")
+volume_db = 80.0
+max_db = 6.0
+
+[node name="OnScreenNotifier" type="VisibleOnScreenNotifier3D" parent="."]
+aabb = AABB(-0.5, 0, -1, 4, 6, 2)
+
+[connection signal="body_entered" from="UpperObstacle/Killzone" to="." method="on_killzone_entered"]
+[connection signal="body_exited" from="UpperObstacle/Killzone" to="." method="on_score_area_exit"]
+[connection signal="body_entered" from="LowerObstacle/Killzone" to="." method="on_killzone_entered"]
+[connection signal="body_exited" from="ScoreArea" to="." method="player_scored"]
+[connection signal="screen_exited" from="OnScreenNotifier" to="." method="on_screen_exited"]

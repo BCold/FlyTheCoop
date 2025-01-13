@@ -1,0 +1,57 @@
+[gd_scene load_steps=6 format=3 uid="uid://1aesgx4470x2"]
+
+[ext_resource type="Script" path="res://Obstacles/obstacle_pair.gd" id="1_lgq4b"]
+[ext_resource type="Material" uid="uid://chkmnp5ht2yy4" path="res://Obstacles/obstacle_materialtres.tres" id="2_8cpo7"]
+[ext_resource type="AudioStream" uid="uid://d1qnkhic71mpk" path="res://Obstacles/death.wav" id="2_fyx8q"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_xj47b"]
+height = 6.01
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_jui53"]
+
+[node name="ObstaclePair" type="Node3D" groups=["obstacles"]]
+script = ExtResource("1_lgq4b")
+speed = 5.0
+
+[node name="UpperObstacle" type="CSGCylinder3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, 0)
+use_collision = true
+height = 6.0
+sides = 16
+material = ExtResource("2_8cpo7")
+
+[node name="Killzone" type="Area3D" parent="UpperObstacle"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="UpperObstacle/Killzone"]
+shape = SubResource("CylinderShape3D_xj47b")
+
+[node name="LowerObstacle" type="CSGCylinder3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+use_collision = true
+height = 6.0
+sides = 16
+material = ExtResource("2_8cpo7")
+
+[node name="Killzone" type="Area3D" parent="LowerObstacle"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LowerObstacle/Killzone"]
+shape = SubResource("CylinderShape3D_xj47b")
+
+[node name="killed" type="AudioStreamPlayer3D" parent="LowerObstacle/Killzone"]
+process_mode = 2
+stream = ExtResource("2_fyx8q")
+volume_db = -10.0
+
+[node name="ScoreArea" type="Area3D" parent="." groups=["ScoreEvent"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ScoreArea"]
+shape = SubResource("CylinderShape3D_jui53")
+
+[node name="OnScreenNotifier" type="VisibleOnScreenNotifier3D" parent="."]
+aabb = AABB(-0.5, 0, -1, 4, 6, 2)
+
+[connection signal="body_entered" from="UpperObstacle/Killzone" to="." method="on_killzone_entered"]
+[connection signal="body_entered" from="LowerObstacle/Killzone" to="." method="on_killzone_entered"]
+[connection signal="body_exited" from="ScoreArea" to="." method="on_score_area_exit"]
+[connection signal="screen_exited" from="OnScreenNotifier" to="." method="on_screen_exited"]

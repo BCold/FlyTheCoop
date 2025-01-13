@@ -1,0 +1,101 @@
+[gd_scene load_steps=15 format=3 uid="uid://b8a8jmohibgp4"]
+
+[ext_resource type="Script" path="res://playerBall.gd" id="1_twvup"]
+[ext_resource type="Texture2D" uid="uid://bwqiqpcdo1udk" path="res://Assets/player/flying/frame-1.png" id="2_ck3fk"]
+[ext_resource type="Texture2D" uid="uid://cjotrxr5clnj4" path="res://Assets/player/take_damage/frame-1.png" id="2_rcnwd"]
+[ext_resource type="Material" uid="uid://richeio4cari" path="res://Obstacles/playerball_material.tres" id="2_sfcgk"]
+[ext_resource type="Texture2D" uid="uid://cr6bwsdgah7gk" path="res://Assets/player/flying/frame-2.png" id="3_lxvww"]
+[ext_resource type="AudioStream" uid="uid://bp07mebfrq0c8" path="res://death.wav" id="3_ywqtg"]
+[ext_resource type="Texture2D" uid="uid://yjk34bu2dtes" path="res://Assets/player/flying/frame-3.png" id="4_i2iyu"]
+[ext_resource type="Texture2D" uid="uid://37b3flpbfbgt" path="res://Assets/player/flying/frame-4.png" id="5_esj8u"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_w47nb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_rcnwd")
+}],
+"loop": false,
+"name": &"damaged",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_ck3fk")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_lxvww")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_i2iyu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_esj8u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_ck3fk")
+}],
+"loop": false,
+"name": &"flying",
+"speed": 12.0
+}]
+
+[sub_resource type="SphereMesh" id="SphereMesh_5sk71"]
+material = ExtResource("2_sfcgk")
+radius = 0.25
+height = 0.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wv2dq"]
+radius = 0.295847
+height = 0.696902
+
+[sub_resource type="Animation" id="Animation_x2ihi"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_kcbn5"]
+resource_name = "flying"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_bl2x8"]
+_data = {
+"RESET": SubResource("Animation_x2ihi"),
+"flying": SubResource("Animation_kcbn5")
+}
+
+[node name="Player" type="CharacterBody3D" groups=["player"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+axis_lock_linear_z = true
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+motion_mode = 1
+script = ExtResource("1_twvup")
+JUMP_VELOCITY = 7.0
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+transform = Transform3D(0.11, 0, 0, 0, 0.11, 0, 0, 0, 0.11, 0, 0, 0)
+sprite_frames = SubResource("SpriteFrames_w47nb")
+animation = &"damaged"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("SphereMesh_5sk71")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.0633287, -0.00776517, -0.0437308)
+shape = SubResource("CapsuleShape3D_wv2dq")
+
+[node name="died" type="AudioStreamPlayer3D" parent="."]
+process_mode = 2
+stream = ExtResource("3_ywqtg")
+volume_db = -10.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_bl2x8")
+}
+
+[connection signal="died" from="." to="." method="_on_player_died"]

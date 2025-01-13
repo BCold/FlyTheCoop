@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://db5asbdqdv8gj"
+path="res://.godot/imported/Interstellar Fleet 1 [LOOP].ogg-53013dc1af3564d2c8aee00e7f915593.oggvorbisstr"
+
+[deps]
+
+source_file="res://Obstacles/Interstellar Fleet 1 [LOOP].ogg"
+dest_files=["res://.godot/imported/Interstellar Fleet 1 [LOOP].ogg-53013dc1af3564d2c8aee00e7f915593.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0.0
+bpm=0.0
+beat_count=0
+bar_beats=4
